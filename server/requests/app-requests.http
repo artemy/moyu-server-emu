@@ -1,0 +1,387 @@
+// APP STARTUP
+### 1 getUserIdByImei
+< {%
+    let md5Key = request.environment.get('md5-1');
+
+    let imei = '352059050381102'
+    let textInput = crypto.md5().updateWithText(`${imei}moyu`).digest().toHex();
+    let token = crypto.md5()
+        .updateWithText(textInput)
+        .digest()
+        .toHex()
+
+    let source = `${imei}${token}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('imei', imei)
+    client.global.set('auth', auth)
+    client.global.set('token', token)
+%}
+POST {{host}}/user/getUserIdByImei
+Content-Type: application/x-www-form-urlencoded
+User-Agent: banana_default_version
+cookie: serviceToken=null
+
+auth = {{auth}} &
+imei = {{imei}} &
+token = {{token}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.userId != null, 'data.userId should be present');
+        client.assert(response.body.data.serviceToken != null, 'data.serviceToken should be present');
+        client.assert(response.body.info == null, 'No info should be present');
+    });
+
+    client.global.set('userId', response.body.data.userId)
+    client.global.set('serviceToken', response.body.data.serviceToken)
+%}
+
+### 2 getHistoryByUserid
+< {%
+    let md5Key = request.environment.get('md5-1');
+
+    let app_id = ''
+    let page = '1'
+    let serviceToken = client.global.get('serviceToken')
+    let size = '10'
+
+    let source = `${app_id}${page}${serviceToken}${size}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('page', page)
+    client.global.set('auth', auth)
+    client.global.set('size', size)
+%}
+POST {{host}}/user/getHistoryByUserid
+Content-Type: application/x-www-form-urlencoded
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+app_id =  &
+auth = {{auth}} &
+page = {{page}} &
+serviceToken = {{serviceToken}} &
+size = {{size}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.count != null, 'data.count should be present');
+        client.assert(response.body.data.list != null, 'data.list should be present');
+    });
+%}
+
+### 2 getDeviceInfoByUserid
+< {%
+    let md5Key = request.environment.get('md5-1');
+
+    let app_id = ''
+    let serviceToken = client.global.get('serviceToken')
+
+    let source = `${app_id}${serviceToken}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('auth', auth)
+%}
+POST {{host}}/user/getDeviceInfoByUserid
+Content-Type: application/x-www-form-urlencoded
+User-Agent: banana_default_version
+cookie: serviceToken=24ee7b8a-9dc2-49af-9fc0-304dea81eea8
+
+app_id =  &
+auth = {{auth}} &
+serviceToken = {{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.id != null, 'data.id should be present');
+        client.assert(response.body.data.status != null, 'data.status should be present');
+        client.assert(response.body.data.setting != null, 'data.setting should be present');
+        client.assert(response.body.data.setting.update_time != null, 'data.setting.update_time should be present');
+        client.assert(response.body.data.setting.language_from != null, 'data.setting.language_from should be present');
+        client.assert(response.body.data.setting.language_to != null, 'data.setting.language_to should be present');
+        client.assert(response.body.data.mac != null, 'data.mac should be present');
+        client.assert(response.body.data.ssid != null, 'data.ssid should be present');
+        client.assert(response.body.data.device_id != null, 'data.device_id should be present');
+        client.assert(response.body.data.version != null, 'data.version should be present');
+    });
+
+    client.global.set('id', response.body.data.id)
+    client.global.set('deviceId', response.body.data.device_id)
+%}
+
+### 3 getModelsList
+< {%
+    let md5Key = request.environment.get('md5-1');
+
+    let source = `${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('auth', auth)
+%}
+GET {{host}}/device/getModelsList?app_id=&auth={{auth}}&serviceToken=
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+    });
+%}
+
+### 4 getLatestVersion
+< {%
+    let md5Key = request.environment.get('md5-1');
+    let deviceId = client.global.get('deviceId')
+
+    let source = `${deviceId}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('auth', auth)
+%}
+GET {{host}}/device/getLatestVersion?app_id=&auth={{auth}}&device_id={{deviceId}}&serviceToken=
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.id != null, 'data.id should be present');
+        client.assert(response.body.data.filesize != null, 'data.filesize should be present');
+        client.assert(response.body.data.version != null, 'data.version should be present');
+    });
+%}
+
+### getLanguageList
+< {%
+    let md5Key = request.environment.get('md5-1');
+    let type = '1'
+
+    let source = `${type}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('type', type)
+    client.global.set('auth', auth)
+%}
+GET {{host}}/device/getLanguageList?app_id=&auth={{auth}}&get_type={{type}}&serviceToken=
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.length == 26, 'data.length should be 26');
+    });
+%}
+
+### setLanguage
+< {%
+    let md5Key = request.environment.get('md5-1');
+    let from = 'en'
+    let to = 'zh'
+    let id = client.global.get('id')
+
+    let source = `${from}${id}${to}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('from', from)
+    client.global.set('to', to)
+    client.global.set('auth', auth)
+%}
+GET {{host}}/device/setLanguage?app_id=&auth={{auth}}&from={{from}}&id={{id}}&serviceToken=&to={{to}}
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data == null, 'Data should not be present');
+        client.assert(response.body.info == null, 'Info should not be present');
+    });
+%}
+
+### pushUpdateVersion
+< {%
+    let md5Key = request.environment.get('md5-1');
+    let deviceId = client.global.get('deviceId')
+
+    let source = `${deviceId}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('auth', auth)
+%}
+GET {{host}}/device/pushUpdateVersion?app_id=&auth={{auth}}&device_id={{deviceId}}&serviceToken=
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+### getDeviceIdByVerifyCode
+< {%
+    let md5Key = request.environment.get('md5-1');
+
+    let verify_code = '3785'
+    let app_id = ''
+    let serviceToken = client.global.get('serviceToken')
+
+    let source = `${verify_code}${app_id}${serviceToken}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('verifyCode', verify_code)
+    client.global.set('auth', auth)
+%}
+GET {{host}}/device/getDeviceIdByVerifyCode?app_id=&auth={{auth}}&
+    serviceToken={{serviceToken}}&verifyCode={{verifyCode}}
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.device_id != null, 'data.device_id should be present');
+        client.assert(response.body.info == null, 'No info should be present');
+    });
+
+    client.global.set('deviceId', response.body.data.device_id)
+%}
+
+### soundNetWork
+< {%
+    let md5Key = request.environment.get('md5-1');
+
+    let ssid = 'moyu-ap'
+    let password = 'moyu9876'
+    let wx_open_id = client.global.get('serviceToken')
+
+    let source = `${password}${ssid}${wx_open_id}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('auth', auth)
+    client.global.set('ssid', ssid)
+    client.global.set('password', password)
+    client.global.set('wx_open_id', wx_open_id)
+%}
+GET {{host}}/device/soundNetWork?auth={{auth}}&password={{password}}&ssid={{ssid}}&
+    wx_open_id={{wx_open_id}}
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+### bind
+< {%
+    let md5Key = request.environment.get('md5-1');
+
+    let deviceId = client.global.get('deviceId')
+    let serviceToken = client.global.get('serviceToken')
+
+    let source = `${deviceId}${serviceToken}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('auth', auth)
+%}
+GET {{host}}/user/bind?auth={{auth}}&device_id={{deviceId}}&serviceToken={{serviceToken}}
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data == null, 'Data should not be present');
+        client.assert(response.body.info != null, 'Info should be present');
+    });
+%}
+
+### unbind
+< {%
+    let md5Key = request.environment.get('md5-1');
+    let deviceId = client.global.get('deviceId')
+    let serviceToken = client.global.get('serviceToken')
+
+    let source = `${deviceId}${serviceToken}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('auth', auth)
+%}
+GET {{host}}/user/unBind?auth={{auth}}&device_id={{deviceId}}&serviceToken={{serviceToken}}
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data == null, 'Data should not be present');
+        client.assert(response.body.info != null, 'data.info should be present');
+    });
+%}
+
+### logout
+< {%
+    let md5Key = request.environment.get('md5-1');
+    let serviceToken = client.global.get('serviceToken')
+
+    let source = `${serviceToken}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('auth', auth)
+%}
+POST {{host}}/user/logout
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+Content-Type: application/x-www-form-urlencoded
+
+auth = {{auth}} &
+serviceToken = {{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data == null, 'Data should not be present');
+        client.assert(response.body.info != null, 'data.info should be present');
+    });
+%}
+
+### appversion
+< {%
+    let md5Key = request.environment.get('md5-2');
+    let platform = '32'
+    let version = '20210315'
+
+    let source = `${platform}${version}${md5Key}`;
+    let auth = crypto.md5().updateWithText(source).digest().toHex();
+    client.global.set('auth', auth)
+    client.global.set('platform', platform)
+    client.global.set('version', version)
+%}
+GET {{host}}/appversion/android?auth={{auth}}&platform={{platform}}&version={{version}}
+User-Agent: banana_default_version
+cookie: serviceToken={{serviceToken}}
+
+> {%
+    client.test('Request executed successfully', function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.description != null, 'data.description should be present');
+        client.assert(response.body.data.size != null, 'data.size should be present');
+        client.assert(response.body.data.url != null, 'data.url should be present');
+        client.assert(response.body.data.version != null, 'data.version should be present');
+        client.assert(response.body.data.version_name != null, 'data.version_name should be present');
+    });
+%}

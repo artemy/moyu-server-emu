@@ -1,0 +1,40 @@
+### translation api
+< {%
+    let from = 'en'
+    let to = 'ru'
+
+    client.global.set('from', from)
+    client.global.set('to', to)
+%}
+POST {{host}}/outer/semanticanalysis/indexNew?device_id={{device_id}}&from={{from}}&to={{to}}
+Content-Type: audio/opus
+
+< voice.bin
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.url != null, 'data.url should be present');
+        client.assert(response.body.info == null, 'No info should be present');
+    });
+%}
+
+### QA API
+POST {{host}}/outer/qa/xiaoai?device_id={{device_id}}&remaining_power=60&session_id=
+Content-Type: audio/opus
+
+< voice.bin
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.url != null, 'data.url should be present');
+        client.assert(response.body.info == null, 'No info should be present');
+    });
+%}

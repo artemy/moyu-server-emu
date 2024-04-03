@@ -1,0 +1,138 @@
+// DEVICE STARTUP
+### 1
+< {%
+    let mac = '840D8E19949C'
+    let verify_code = ''
+
+    client.global.set('mac', mac)
+    client.global.set('verify_code', verify_code)
+%}
+POST {{host}}/outer/device/getDeviceIdByMac
+Content-Type: text/plain
+User-Agent: JMozilla/5.0
+
+{"mac":"{{mac}}","verify_code":"{{verify_code}}"}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.device_id != null, 'data.device_id should be present');
+        client.assert(response.body.data.device_secret != null, 'data.device_secret should be present');
+        client.assert(response.body.info == null, 'No info should be present');
+    });
+
+    client.global.set('device_id', response.body.data.device_id)
+    client.global.set('device_secret', response.body.data.device_secret)
+%}
+
+### 2 Report network
+< {%
+    let ssid = 'FOO_BAR'
+
+    client.global.set('ssid', ssid)
+%}
+GET {{host}}/outer/device/network?device_id={{device_id}}&ssid={{ssid}}
+Content-Type: text/plain
+User-Agent: JMozilla/5.0
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data == null, 'No data should be present');
+        client.assert(response.body.info == null, 'No info should be present');
+    });
+%}
+
+### 3 Report version
+< {%
+    let version = '0.4.3'
+
+    client.global.set('version', version)
+%}
+GET {{host}}/outer/device/uploadVersion?device_id={{device_id}}&version={{version}}
+Content-Type: text/plain
+User-Agent: JMozilla/5.0
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data == null, 'No data should be present');
+        client.assert(response.body.info == null, 'No info should be present');
+    });
+%}
+
+### 4 Request MQTT credentials
+< {%
+    let timestamp = '2524608000000'
+    let productKey = request.environment.get('productKey')
+    let device_id = client.global.get('device_id')
+    let device_secret = client.global.get('device_secret')
+
+    let source_hmac = `clientId${productKey}.${device_id}deviceName${device_id}productKey${productKey}timestamp${timestamp}`
+    let sign = crypto.hmac.sha1()
+        .withTextSecret(device_secret)
+        .updateWithText(source_hmac)
+        .digest()
+        .toHex();
+    request.variables.set('productKey', productKey)
+    request.variables.set('sign', sign)
+%}
+POST {{host}}/auth/devicename
+Accept: text/xml,text/javascript,text/html,application/json
+Content-Type: application/x-www-form-urlencoded;charset=utf-8
+
+
+productKey = {{productKey}} &
+deviceName = {{device_id}} &
+signmethod = hmacsha1 &
+sign = {{sign}} &
+version = default &
+clientId = {{productKey}}.{{device_id}} &
+timestamp = 2524608000000 &
+resources = mqtt
+
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 200, 'Code is not 200');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.iotId != null, 'data.iotId should be present');
+        client.assert(response.body.data.iotToken != null, 'data.iotToken should be present');
+        client.assert(response.body.data.resources != null, 'data.resources should be present');
+        client.assert(response.body.data.resources.mqtt != null, 'data.resources.mqtt should be present');
+        client.assert(response.body.data.resources.mqtt.host != null, 'data.resources.mqtt.host should be present');
+        client.assert(response.body.data.resources.mqtt.port != null, 'data.resources.mqtt.port should be present');
+        client.assert(response.body.info == null, 'No info should be present');
+    });
+%}
+
+###
+// Verify Code request
+POST {{host}}/outer/device/getVerifyCodeByDeviceId
+Content-Type: text/plain
+User-Agent: JMozilla/5.0
+
+{"device_id":"{{device_id}}"}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, 'Response status is not 200');
+        client.assert(response.contentType.mimeType === 'application/json', 'Content-type is not application/json');
+        client.assert(response.body.code === 0, 'Code is not 0');
+        client.assert(response.body.data != null, 'Data should be present');
+        client.assert(response.body.data.url != null, 'data.url should be present');
+        client.assert(response.body.info == null, 'No info should be present');
+    });
+
+    client.global.set('device_id', response.body.data.device_id)
+    client.global.set('device_secret', response.body.data.device_secret)
+%}

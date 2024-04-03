@@ -1,0 +1,40 @@
+services:
+  mosquitto:
+    container_name: mosquitto_container
+    image: eclipse-mosquitto:2.0.18
+    volumes:
+      - ./docker/mosquitto:/mosquitto/config/
+    ports:
+      - '8883:8883'
+  db:
+    image: postgres:16.1-alpine
+    environment:
+      POSTGRES_DB: moyu
+      POSTGRES_USER: moyu
+      POSTGRES_PASSWORD: moyu
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+  mitm:
+    image: mitmproxy/mitmproxy:10.3.0
+    command: mitmweb --mode reverse:http://server:8080@443 --mode reverse:http://server:8080@80 --web-host 0.0.0.0
+    ports:
+      - '443:443'
+      - '80:80'
+      - '8081:8081'
+    depends_on:
+      - server
+  server:
+    build: .
+    env_file:
+      - .env
+      - .env.docker
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mosquitto
+      - db
+volumes:
+  db:
+    driver: local

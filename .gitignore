@@ -1,0 +1,8 @@
+target
+
+*.env.json
+.idea
+server/.env
+server/docker/mosquitto/certs
+
+.DS_Store
