@@ -1,0 +1,42 @@
+[.columns]
+== Analyzing the device further
+
+* Putting the device on a controlled network gate
+* Create WiFi AP on a Raspberry Pi
+** It's easier to MITM the traffic this way
+* Use Wireshark to inspect the traffic
+* Similar exercise to reverse engineering the app
+
+[.column]
+image::raspberry-pi.jpg[]
+
+[.notes]
+--
+I could override host IPs via hosts file and make the device call my own server
+--
+
+[.columns]
+== S in IoT stands for Security
+
+* The device makes most of the calls via HTTP
+* Alibaba Cloud HTTPS call can be proxied through  `mitmproxy`
+** Though our cert fails validation, Alibaba Cloud certificate is not pinned
+
+image::alibaba-ssl.png[]
+
+[.columns]
+== MQTT
+
+* AliCloud provides MQTT server credentials
+** MQTT is a messaging protocol for IoT
+* MQTT server: `mosquitto`
+* Extra configuration to enable SSL:
+** Generate our own certs matching the MQTT host
+** Enable SSL, disable mutualTLS
+
+image::mosquitto.png[]
+
+[.notes]
+--
+note about Alibaba Cloud SDK and how it's downloadable only from their website after the registration
+--

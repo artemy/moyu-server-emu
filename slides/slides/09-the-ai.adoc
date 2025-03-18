@@ -1,0 +1,46 @@
+== Chapter 9: The AI
+
+[.notes]
+--
+Since I reverse engineered pretty much the whole functionality, before I would write a server emulator I needed to choose the AI
+I thought of Azure first, but decided against it
+--
+
+[.columns]
+== Powered by Microsoft Azure?
+
+* Azure offering is (was) underwhelming
+** Library/API is too cumbersome and bloated
+
+image::powered-by-microsoft-ai.png[width=50%]
+
+== OpenAI
+
+image::openai-logo.png[width=50%]
+
+* API is simple
+** Includes text-to-speech and speech-to-text
+* Model is smart enough to do translations
+
+== AI Pipeline
+
+[plantuml,target=ai,format="png",width="40%"]
+--
+skinparam dpi 300
+participant Device as device
+participant Server as server
+box "OpenAI" %lighten("lightgreen", 30)
+entity Transcription as transcription
+entity Chat as chat
+entity Speech as speech
+end box
+
+device --> server : speech
+server --> transcription: speech
+transcription --> server: text
+server --> chat: prompt with text
+chat --> server: chat response
+server --> speech: chat response
+speech --> server: audio
+server --> device: audio
+--

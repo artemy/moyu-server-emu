@@ -1,0 +1,55 @@
+== Epilogue
+
+* With all this information, it's time to write a server
+* Slowly converting mocks into Kotlin + Spring Boot
+** This tech stack didn't feel right...
+
+[.columns]
+== Rewrite it in Rust 🦀
+
+[.column]
+* Rust has a more convenient API for working with bytes
+* Felt "closer" to the spirit of the project
+* Libraries used:
+** Axum: web framework
+** SeaORM: database ORM
+** async-openai: OpenAI API
+** hound: audio generation
+** paho-mqtt: mqtt client
+
+[.column]
+image::rust-artem.jpeg[]
+
+== Final project and demo
+
+[plantuml,target=final-project,format=png, width=60%]
+--
+skinparam dpi 300
+
+agent "Device <:1F4DF:>" as device
+agent "Smartphone App <:1F4F1:>" as app
+node "Server emulator <:1F980:>" as server
+cloud "OpenAI <:1F916:>" as openai
+database "PostgreSQL" as db
+component "MQTT Server" as mqtt
+
+server <--> openai: AI functionality
+server --> db: store\nusers & settings
+device <-- mqtt: update settings
+
+app <--> server: login, device pairing\nand configuration
+device <-> server: login,\nmetrics,\naudio
+server -> mqtt: update\ndevice settings
+--
+
+== Final notes & Q&A
+
+* Stay curious
+* Be patient
+* Make cool stuff and put it on the internet :-)
+
+
+[]
+* https://github.com/artemy/moyu-server-emu
+* https://www.linkedin.com/in/artemy
+* @artemy.nl on Bluesky

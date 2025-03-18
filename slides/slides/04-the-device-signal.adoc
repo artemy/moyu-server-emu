@@ -1,0 +1,139 @@
+== Sing me the song of your people
+
+* How to connect the device to Wi-Fi?
+* YouTube reviews give us a few audio samples of encoded credentials
++
+audio::audio/wifi.wav[]
++
+* Will the device accept replayed sample?
+** The device recognizes the credentials!
+
+image::uart-wifi-log.png[]
+
+[.columns]
+== lofi hip hop radio 📚 - beats to reverse/engineer to
+
+[.column.is-one-third]
+* Signal is modulated
+* Candidates:
+** Amplitude modulation
+** Frequency modulation
+* Analyze audio with `Audacity`
+
+image::waveform.png[]
+
+[.notes]
+--
+** Phase modulation
+* Given the range, it's AM or FM
+--
+
+=== Modulation
+
+Embedding an input signal into a carrier signal by varying carrier signal properties
+
+image::main-qimg-8edce743988857d819674c842edfa0e2.webp[]
+
+
+[.columns]
+== Amplitude modulation
+
+[.column.is-one-third]
+* Amplitude modulation: varying signal amplitude (loudness)
+* Ruled out when the device still recognized normalized signal
+
+image::waveform-normalized.png[]
+
+[.columns]
+== Frequency modulation
+
+[.column.is-one-third]
+* Frequency modulation: varying signal frequency
+* Signal is between 2000Hz and 5200Hz
+* Filtering out the rest of the spectrum doesn't affect the signal recognition
+* ~70ms pulses at various frequencies
+
+image::audacity-spectrum.png[]
+
+[.columns]
+== Signal analysis: The Science
+
+[.column.is-one-third]
+* Let's bring Python in: `matplotlib`, `numpy`, `scipy`
+* FFT analysis
+** 18 distinct frequencies
+** From 2000Hz to 5200Hz
+** Spacing: ~200Hz
+
+image::fft.png[]
+
+[.columns]
+== Signal analysis: The Science
+
+[.column.is-one-third]
+* Signal has a pattern:
+** starts with 2x 2000Hz pulses
+** ends with 2x 2200Hz pulses
+* Remaining 16 frequencies suggest
+4-bit encoding?
+
+image::audacity-spectrum.png[]
+
+[.notes]
+--
+The above is valid for all the samples
+--
+
+[.columns]
+== Multiple Frequency Shift Keying (MFSK)
+
+[.column.is-two-thirds]
+* Likely candidate: MFSK16
+* Alphabet of 16 frequencies encodes 4 bits
+* Theory:
+** Each symbol is half-byte/nibble
++
+e.g., frequency #5 followed by frequency #12 is `0101_1100b` = `0x5C`
+
+[.table-medium]
+[%autowidth]
+[cols="d,d,d"]
+|===
+|freq #|bin|hex
+
+|0|0000|0x00
+|1|0001|0x01
+|2|0010|0x02
+|..||
+|14|1110|0x0E
+|15|1111|0x0F
+
+|===
+
+[.columns]
+== Extracting the data
+
+[.column.is-one-third]
+* Automating required additional filtering
+* Use manual approach: visually detect frequencies
+* The result is gibberish
+
+image::excel-1.png[]
+
+[.columns]
+== Recreating the signal
+
+* How to prove the MFSK theory?
+* If the information is encoded only by frequency variations, the signal could be reconstructed
+* The device doesn't recognize the generated audio :-(
+
+image::sound-generation-1.png[]
+
+== Looking for similar projects
+
+* Reverse Engineering the Amazon Dash button http://www.blog.jay-greco.com/wp/?p=116
+* ggwave: https://github.com/ggerganov/ggwave
+* Article about reverse-engineering Google Pay ultrasound payments http://medium.com/p/fa7f6d93320b
+* Chirp: data-over-sound protocol
+** Open-source implementation: https://github.com/weckbach/AstroMech
+* Interesting insights, but our signal is different from the above-mentioned

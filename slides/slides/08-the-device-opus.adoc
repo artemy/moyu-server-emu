@@ -1,0 +1,79 @@
+[.columns]
+== The remaining challenge
+
+* The device sends the recorded audio to the server via HTTP
+* `Content-Type: audio/opus`
+* No player could recognize this data
+
+image::mitmweb.png[]
+
+== Audio recording
+
+* The firmware seems to contain code that closely matches open source `libopusenc` library
+* Trying to decode audio using this library doesn't work
+* Do I receive the data incorrectly?
+* Maybe it is encrypted?
+
+[.notes]
+--
+the device supports many formats, but by correlating the UART messages I could tell it was using opus
+--
+
+[.columns]
+== Looking at the bytes (again)
+
+[.column.is-one-third]
+* There is certainly some pattern: chunks separated by zeroes?
+* The first four bytes: length?
+* The actual chunk length is always larger by four
+* The decoder would not accept the chunks
+
+image::hex-fiend-1.png[]
+
+== Garbage in - garbage out
+
+* New approach: skipping first N bytes for each chunk
+* It worked after I cut exactly eight bytes!
+* The chunk format is almost clear now:
++
+[%autowidth]
+[cols="d,d,d,d,d,d,d,d,d,d,d,d"]
+|===
+|0|1|2|3|4|5|6|7|8|9|10|...
+
+|00|00|00|08|AA|BB|CC|DD|01|02|03|...
+4+|length (big endian)
+4+|????
+4+|packet
+|===
+
+== Embrace the entropy
+
+* So what are those mysterious four bytes?
+* Mapping `libopus` onto disassembly:
++
+image::final_range_code.png[]
++
+* Final range is "the final state of the codec's entropy coder"
+* At last, I can decode the audio!
+
+[.columns]
+== Extra challenge
+
+* Device outputs raw opus packets
+* Instead of decoding into wav, can I pack them into a valid Ogg container?
+* After a tedious fight with documentation, it worked
+* Valid Ogg file confirmed by `opustools` and `libogg`
+
+image::valid-ogg.png[]
+
+== Device functionality
+
+* Retrieve device credentials (id & secret) from the server
+* Report metrics (ssid/battery/firmware version)
+* Retrieve MQTT server credentials
+* Request verify code for pairing
+* AI & Translation audio requests/response playback
+* Listening on MQTT topic for commands
+** Set language
+** Update firmware

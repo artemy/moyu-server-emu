@@ -1,0 +1,10 @@
+[.columns]
+== Introduction
+
+[.column]
+- Artem Makarov
+- Principal Engineer @ Code Nomads
+- M.Eng. in Electronics Design
+
+[.column]
+image::intro.jpg[width=70%]

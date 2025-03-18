@@ -1,0 +1,47 @@
+== Chapter 2: The App
+
+[.notes]
+--
+Since I had the apk I could decompile it and see what it does, so I can see what kind of requests it makes and what kind of response it expects
+--
+
+[.columns]
+== Decompiling the app
+
+[.column.is-two-fifths]
+* Using `jadx-gui`
+* Help the investigation:
+** Replace server address with my own, disable https
+** Recompile the app with `apktool`
+** Run it and inspect the traffic
+
+image::jadx-gui.png[width=100%]
+
+[.notes]
+--
+* APK is a ZIP archive, much like JAR
+* jadx-gui - decompiler
+* The classes are not obfuscated
+* sign the app
+--
+
+[.columns]
+== Studying the app requests
+
+[.column.is-one-third]
+* Mockoon: tool for API mocking
+* Easy exercise:
+** Inspect the request
+** Figure out the required response
+** Rinse and repeat
+
+image::mockoon.png[]
+
+== App functionality
+
+* Server login (by phone id)
+* Generate sound for Wi-Fi credentials (on the server)
+* Pair/unpair the device
+* Configure languages
+* Get info about app/device firmware updates
+* Update device firmware

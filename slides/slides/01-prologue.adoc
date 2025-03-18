@@ -1,0 +1,64 @@
+[.columns]
+== Prologue
+
+* The device: Xiaomi Moyu AI Translator
+* Pretty cool specs:
+** 15 supported languages
+** AI Assistant function (weather/news/calculator/etc.)
+* Powered by Microsoft Azure!
+
+image::mi-translator.jpg[]
+
+[.columns]
+== The disappointment
+
+* The device is not supported anymore:
+** Apps are taken down
+** Manufacturer's website is down
+* Not clear how to operate the device without the app
+
+image::no-app-ios.png[]
+
+== The reconnaissance
+
+* Let's see what we can find on the internet:
+** Forum posts with complaints from at least early 2023
+** Reviews on YouTube that show the device operation
+** Android .apk available via (shady) archive websites, no iOS app
+
+[.notes]
+--
+* Bunch of places that still sell it (for ~€40!)
+* No similar projects
+--
+
+== Digging deeper
+
+* YouTube reviews shed some light on the operation:
+** The device doesn't work offline, it needs a Wi-Fi AP
+** The Wi-Fi credentials are transmitted via sound (!)
+** Once the device is online, you pair it with the app
+** The app can modify device settings and display conversation logs
+
+[.columns]
+== Episode IV - A New Hope
+
+* Maybe the .apk still works?
+* App errors on startup
+** The logs show server timeout
+* It seems that the manufacturer's server is down for good
+
+image::android-emulator.png[height=50%]
+
+[.notes]
+--
+* Can't use the app without a working server
+* Can't use the device without a working app
+--
+
+== The challenge
+
+* The manufacturer's server is down
+* The device is effectively a brick
+* Can operate it again?
+* I would need to understand how the server was supposed to work...

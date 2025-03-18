@@ -1,0 +1,34 @@
+= Reverse Engineering an IoT Device: Giving new life to abandoned hardware
+:revealjs_theme: white
+:revealjs_hash: true
+:revealjs_width: '100%'
+:revealjs_height: '100%'
+:icons: font
+:source-highlighter: highlight.js
+:highlightjs-theme: https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/github.min.css
+:revealjsdir: https://cdn.jsdelivr.net/npm/reveal.js@4.1.2
+:customcss: ../custom-style.css
+:imagesdir: includes
+:stem:
+
+include::00-intro.adoc[]
+
+include::01-prologue.adoc[]
+
+include::02-the-app.adoc[]
+
+include::03-the-device.adoc[]
+
+include::04-the-device-signal.adoc[]
+
+include::05-the-device-firmware.adoc[]
+
+include::06-the-device-signal-02.adoc[]
+
+include::07-the-device-firmware-02.adoc[]
+
+include::08-the-device-opus.adoc[]
+
+include::09-the-ai.adoc[]
+
+include::99-epilogue.adoc[]

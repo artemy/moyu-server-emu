@@ -1,0 +1,46 @@
+
+[.columns]
+== Inspecting the firmware
+
+[.column]
+* Dump the firmware via UART with `esptool`
+** Firmware wasn't protected or encrypted
+* `Ghidra` supports ESP32 (Xtensa architecture)
+** Built by the NSA
+** Has disassembler, decompiler and even debugger
+
+[.column]
+image::nsa-ghidra.png[]
+
+[.notes]
+--
+* Developed by the NSA
+* Originally revealed in WikiLeaks
+* Open-sourced in 2019
+* Most likely existed for much longer (since at least 1999)
+* Written in Java
+--
+
+[.columns]
+== Disassembling the firmware
+
+[.column.is-one-third]
+* Locate the place where the credentials decoding happens
+* Disassembled code is very convoluted
+* ChatGPT helped to make sense of the part of it
+
+image::ghidra.png[]
+
+[.notes]
+--
+code is still better than some human-written code that I've seen
+--
+== How the decoding works?
+
+* The audio is captured in a circular buffer
+* Data is filtered, normalized and chunked
+* Main frequency is detected with FFT
+* Compare the frequency against the table
+* ????
+* +++<s>+++PROFIT!!!+++</s>+++ Some checksum calculation? (ChatGPT was not sure)
+* SSID and password are extracted

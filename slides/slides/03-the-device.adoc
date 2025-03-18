@@ -1,0 +1,33 @@
+== Chapter 3: The Device
+
+== No connection
+
+* The device can't operate without the Wi-Fi connection
+* The Wi-Fi credentials audio was generated on a (dead) server
+* Is there any way to learn more about how the device works?
+
+[.columns]
+== Taking the device apart
+
+* There's a familiar chip: ESP32
+* UART (debug) port is exposed!
+** R, T and G pads are RX, TX and GND respectively
+* Let's solder some wires
+
+image::wires-soldered.jpeg[width=70%]
+
+[.columns]
+== UART
+
+[.column.is-one-third]
+* Device prints out quite a lot of information
+** Initialization logs
+** Button press events
+** Miscellaneous information
+
+image::uart-first-boot.png[width=70%]
+
+[.notes]
+--
+I could see boot log I press the buttons and it prints something
+--
