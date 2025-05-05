@@ -1,22 +1,23 @@
-# Step 1: Compute a recipe file
-FROM rust:1.85-bullseye AS planner
-WORKDIR app
+FROM rust:1.86.0-alpine AS chef
+USER root
+RUN apk add musl-dev
 RUN cargo install cargo-chef
+WORKDIR /app
+
+# Step 1: Compute a recipe file
+FROM chef AS planner
 COPY .. .
 RUN cargo chef prepare --recipe-path recipe.json
 
 # Step 2: Cache project dependencies
-FROM rust:1.85-bullseye AS cacher
-WORKDIR app
-RUN apt update && apt install -y libssl-dev build-essential cmake
-RUN cargo install cargo-chef
+FROM chef AS cacher
+RUN apk add openssl-dev build-base cmake
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 # Step 3: Build the binary
-FROM rust:1.85-bullseye AS builder
-RUN apt update && apt install -y libssl-dev build-essential cmake
-WORKDIR app
+FROM chef AS builder
+RUN apk add openssl-libs-static
 COPY .. .
 # Copy over the cached dependencies from above
 COPY --from=cacher /app/target target
@@ -26,7 +27,7 @@ RUN cargo build --release
 # Step 4:
 # Create a tiny output image.
 # It only contains our final binary.
-FROM rust:1.85-bullseye AS runtime
-WORKDIR app
+FROM alpine:3.21 AS runtime
+WORKDIR /app
 COPY --from=builder /app/target/release/moyu-server-emulator /usr/local/bin
 ENTRYPOINT ["/usr/local/bin/moyu-server-emulator"]
