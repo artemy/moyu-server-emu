@@ -8,3 +8,8 @@
 
 [.column]
 image::intro.jpg[width=70%]
+
+[%notitle]
+== Motivation
+
+image::intro-meme.png[width=60%]

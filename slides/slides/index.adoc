@@ -1,4 +1,4 @@
-= Reverse Engineering an IoT Device: Giving new life to abandoned hardware
+= Hacked in Translation: Reverse Engineering obscure IoT Hardware
 :revealjs_theme: white
 :revealjs_hash: true
 :revealjs_width: '100%'
