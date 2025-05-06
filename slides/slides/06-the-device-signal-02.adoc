@@ -40,30 +40,36 @@ Where S is length of SSID and P is a length of password
 
 * Why are the next bytes different?
 
+[.columns]
 == Doing some math
 
+[.column.is-half]
 * Randomly playing around with the first two bytes, I noticed:
 +
 [stem]
 ++++
-A_2 = B_2 - B_1, " e.g. " "0xdc" - "0x6d" = "0x6f"
+A_2 = E_2 - E_1
 ++++
 +
-Where A - actual value, B are encoded bytes
+e.g., 0xdc-0x6d=0x6f
 +
-* This was true for all three samples and for all the remaining bytes:
+Where A - actual value, E are encoded bytes
 +
+* This was true for all three samples and for all the remaining bytes
+* *{sp} substraction is done with an 8-bit integer wrapping; the bytes are unsigned
+
 [.table-medium]
 [%autowidth]
-[cols="h,d,d,d,d,d,d,d"]
+[cols="d,d,d"]
 |===
-
-|encoded|6D|DC|55|CA|C9|BF|34
-|stem:[B_n - B_(n-1) mod 256] *|-|6F|79|75|FF|F6|75
-|actual|6D|6F|79|75|-|-|-
+|encoded|stem:[E_n - E_(n-1)]*|actual
+|`0x6D`|-|`0x6D`
+|`0xDC`|`0xDC-0x6D=0x6F`|`0x6F`
+|`0x55`|`0x55-0xDC=0x79`|`0x79`
+|`0xCA`|`0xCA-0x55=0x75`|`0x75`
+|`0xC9`|`0xC9-0xCA=0xFF`|-
+|`0xBF`|`0xBF-0xC9=0xF6`|
 |===
-+
-*{sp} stem:[mod 256] is an 8-bit integer wrapping; the bytes are unsigned
 
 [.columns]
 == What about the remaining three bytes?
